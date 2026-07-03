@@ -1,0 +1,9 @@
+{
+  "name": "tgli-calculator-vercel",
+  "version": "1.0.0",
+  "description": "TGLI Calculator hosted fully on Vercel without credit card requirements",
+  "main": "api/policy.js",
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}

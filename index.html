@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TGLI పాలసీ & బాండ్ క్యాలిక్యులేటర్</title>
+  
+  <!-- Google Fonts (Outfit) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #06b6d4;
+      --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+      --accent-gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.15) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    header {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-gradient);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-group label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .input-group label i {
+      color: var(--primary);
+    }
+
+    .input-group input {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      padding: 14px 18px;
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    button.btn-search {
+      background: var(--primary-gradient);
+      border: none;
+      color: white;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+    }
+
+    button.btn-search:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
+    }
+
+    .loader-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      padding: 40px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(6, 182, 212, 0.1);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+    }
+
+    .results-layout {
+      display: none;
+      flex-direction: column;
+      gap: 30px;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .grid-info {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 30px;
+    }
+
+    @media (max-width: 992px) {
+      .grid-info {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .details-table-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+    }
+
+    .info-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 576px) {
+      .info-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-item span.label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-item span.value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .premium-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    /* Bond Grid and Card Styles */
+    .bond-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-top: 15px;
+    }
+    @media (max-width: 992px) {
+      .bond-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .bond-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 25px;
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
+    .bond-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-gradient);
+    }
+    .bond-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
+      margin-bottom: 5px;
+    }
+    .bond-header h3 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      font-weight: 600;
+      margin: 0;
+    }
+    table.bond-details-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table.bond-details-table td {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.95rem;
+    }
+    table.bond-details-table tr:last-child td {
+      border-bottom: none;
+    }
+    table.bond-details-table td.label {
+      color: var(--text-muted);
+      text-align: left;
+    }
+    table.bond-details-table td.value {
+      text-align: right;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .highlight-bonus {
+      color: var(--primary) !important;
+      font-weight: 700 !important;
+    }
+    .highlight-maturity {
+      color: var(--success) !important;
+      font-weight: 700 !important;
+      font-size: 1.15rem !important;
+    }
+
+    .calc-playground {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .output-section {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 16px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      border: 1px solid var(--card-border);
+    }
+
+    .output-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--card-border);
+    }
+
+    .output-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .output-row span.label {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .output-row span.value {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .total-highlight {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1.8rem !important;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--card-border);
+      margin-top: 50px;
+    }
+
+    .error-box {
+      display: none;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 12px;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>TGLI Policy & Bond Calculator</h1>
+      <p>తెలంగాణ స్టేట్ గవర్నమెంట్ లైఫ్ ఇన్సూరెన్స్ పాలసీ మరియు బాండ్ల వివరాలను త్వరగా సేకరించి లెక్కించండి.</p>
+    </header>
+
+    <!-- Search Form -->
+    <div class="card">
+      <form id="searchForm" onsubmit="handleSearch(event)">
+        <div class="form-row">
+          <div class="input-group">
+            <label for="policyNo"><i class="fa-solid fa-file-contract"></i> పాలసీ నెంబర్ (Policy Number)</label>
+            <input type="text" id="policyNo" placeholder="ఉదా: L1505997" required value="L1505997">
+          </div>
+          
+          <div class="input-group">
+            <label for="dob"><i class="fa-solid fa-calendar-days"></i> పుట్టిన తేదీ (Date of Birth)</label>
+            <input type="date" id="dob" required value="1982-05-04">
+          </div>
+
+          <button type="submit" class="btn-search">
+            <i class="fa-solid fa-magnifying-glass"></i> శోధించండి (Search)
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Error Box -->
+    <div id="errorBox" class="error-box">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span id="errorMessage"></span>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loader" class="loader-container">
+      <div class="spinner"></div>
+      <p style="color: var(--primary);">TGLI సర్వర్ల నుండి డేటాను సేకరిస్తోంది... దయచేసి వేచి ఉండండి.</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results" class="results-layout">
+      
+      <!-- Personal Details & Stats -->
+      <div class="grid-info">
+        <!-- Details Table -->
+        <div class="card">
+          <div class="details-table-title">
+            <i class="fa-solid fa-user-tie"></i> వ్యక్తిగత సమాచారం (Personal Details)
+          </div>
+          <div class="info-list">
+            <div class="info-item">
+              <span class="label">పాలసీదారుడి పేరు</span>
+              <span class="value" id="resName">-</span>
+            </div>
+            <div class="info-item">
+              <span class="label">తండ్రి పేరు</span>
+              <span class="value" id="resFatherName">-</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ఉద్యోగ హోదా (Designation)</span>
+              <span class="value" id="resDesignation">-</span>
+            </div>
+            <div class="info-item">
+              <span class="label">పుట్టిన తేదీ (DOB)</span>
+              <span class="value" id="resDob">-</span>
+            </div>
+            <div class="info-item">
+              <span class="label">జిల్లా (District File)</span>
+              <span class="value" id="resDistrict">-</span>
+            </div>
+            <div class="info-item">
+              <span class="label">మొత్తం ప్రీమియం విలువ</span>
+              <span class="value" id="resTotalPremium">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Premium Account Balances -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+          <div class="details-table-title">
+            <i class="fa-solid fa-wallet"></i> అకౌంట్ బ్యాలెన్స్ (Account Balance)
+          </div>
+          <div class="output-section" style="background: transparent; border: none; padding: 0;">
+            <div class="output-row">
+              <span class="label">Opening Balance</span>
+              <span class="value" style="color: var(--primary);" id="resOpeningBal">₹0</span>
+            </div>
+            <div class="output-row">
+              <span class="label">Current Year Premium</span>
+              <span class="value" style="color: var(--primary);" id="resCurrentPremium">₹0</span>
+            </div>
+            <div class="output-row">
+              <span class="label">Cumulative Total</span>
+              <span class="value" style="color: var(--success); font-weight: 700;" id="resCumulativeTotal">₹0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bonds Section -->
+      <div>
+        <div class="details-table-title" style="margin-bottom: 20px;">
+          <i class="fa-solid fa-file-invoice-dollar"></i> బాండ్ల వివరాలు & బోనస్ క్యాలిక్యులేషన్స్ (Bond Details & Calculations)
+        </div>
+        <div class="bond-grid" id="bondsGrid">
+          <!-- Dynamically populated separate tables -->
+        </div>
+      </div>
+
+      <!-- Policy Totals Summary -->
+      <div class="card">
+        <div class="details-table-title">
+          <i class="fa-solid fa-calculator"></i> మొత్తం పాలసీ సారాంశం (Policy Totals Summary)
+        </div>
+        
+        <div class="calc-playground" style="grid-template-columns: 1fr;">
+          <div class="output-section" style="background: transparent; border: none; padding: 0;">
+            <div class="output-row">
+              <span class="label">మొత్తం బాండ్ల సంఖ్య (Total Bonds Count):</span>
+              <span class="value" id="totalBondsCount" style="color: var(--primary);">0</span>
+            </div>
+            <div class="output-row">
+              <span class="label">మొత్తం బేసిక్ Sum Assured (Total Basic Sum Assured):</span>
+              <span class="value" id="outSumAssured">₹0</span>
+            </div>
+            <div class="output-row">
+              <span class="label">మొత్తం లెక్కించిన బోనస్ (Total Calculated Bonus):</span>
+              <span class="value" style="color: var(--primary);" id="outBonus">₹0</span>
+            </div>
+            <div class="output-row" style="border-top: 2px solid var(--card-border); padding-top: 15px; margin-top: 10px;">
+              <span class="label" style="font-weight: 600;">మొత్తం అంచనా మెచ్యూరిటీ విలువ (Total Maturity Value):</span>
+              <span class="value total-highlight" id="outTotal">₹0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>తెలంగాణ స్టేట్ గవర్నమెంట్ లైఫ్ ఇన్సూరెన్స్ డిపార్ట్‌మెంట్ డేటా ఆధారంగా లెక్కించబడుతుంది.</p>
+    <p style="margin-top: 5px; font-size: 0.8rem;">Powered by Vercel Serverless Functions.</p>
+  </footer>
+
+  <script>
+    let globalSumAssured = 0;
+    let globalMonthlyPremium = 0;
+
+    function formatDobForTgli(dateString) {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "";
+      const day = date.getDate();
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+
+    async function handleSearch(event) {
+      event.preventDefault();
+      
+      const policyNo = document.getElementById('policyNo').value.trim();
+      const rawDob = document.getElementById('dob').value;
+      const formattedDob = formatDobForTgli(rawDob);
+
+      document.getElementById('errorBox').style.display = 'none';
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('loader').style.display = 'flex';
+
+      try {
+        const response = await fetch(`/api/policy?x=${encodeURIComponent(policyNo)}&y=${encodeURIComponent(formattedDob)}`);
+        const data = await response.json();
+
+        document.getElementById('loader').style.display = 'none';
+
+        if (data.success) {
+          displayResults(data);
+        } else {
+          let errorMsg = data.message || "వివరాలు సేకరించడంలో విఫలమైంది.";
+          if (errorMsg.includes("not found")) {
+            errorMsg = "ఈ పాలసీ నెంబర్ మరియు పుట్టిన తేదీకి సంబంధించిన వివరాలు లభించలేదు. దయచేసి వివరాలను సరిచూసుకోండి.";
+          }
+          showError(errorMsg);
+        }
+      } catch (err) {
+        document.getElementById('loader').style.display = 'none';
+        showError("సర్వర్ తో కనెక్ట్ కావడంలో లోపం ఏర్పడింది. దయచేసి మీ డిప్లాయ్‌మెంట్ ని సరిచూసుకోండి.");
+        console.error(err);
+      }
+    }
+
+    function showError(message) {
+      document.getElementById('errorMessage').innerText = message;
+      document.getElementById('errorBox').style.display = 'flex';
+    }
+
+    function parseDmyDate(dateStr) {
+      if (!dateStr) return null;
+      const parts = dateStr.trim().split('-');
+      if (parts.length !== 3) return null;
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10);
+      return new Date(year, month, day);
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
+    }
+
+    function displayResults(data) {
+      document.getElementById('resName').innerText = data.name;
+      document.getElementById('resFatherName').innerText = data.fatherName;
+      document.getElementById('resDesignation').innerText = data.designation;
+      document.getElementById('resDob').innerText = data.dob;
+      document.getElementById('resDistrict').innerText = "KARIMNAGAR"; 
+      document.getElementById('resTotalPremium').innerText = formatCurrency(data.totalPremium);
+
+      document.getElementById('resOpeningBal').innerText = formatCurrency(data.openingBalance);
+      document.getElementById('resCurrentPremium').innerText = formatCurrency(data.currentYearPremium);
+      document.getElementById('resCumulativeTotal').innerText = formatCurrency(data.openingBalance + data.currentYearPremium);
+
+      const grid = document.getElementById('bondsGrid');
+      grid.innerHTML = '';
+      
+      globalSumAssured = 0;
+      globalMonthlyPremium = 0;
+      let totalBonus = 0;
+      let totalMaturity = 0;
+
+      data.bonds.forEach(bond => {
+        globalSumAssured += bond.sumAssured;
+        globalMonthlyPremium += bond.monthlyPremium;
+
+        let serviceYears = 0;
+        const lastPremium = parseDmyDate(bond.lastPremiumDue);
+        const commencement = parseDmyDate(bond.commencement);
+        if (lastPremium && commencement) {
+          serviceYears = Math.max(0, lastPremium.getFullYear() - commencement.getFullYear());
+        }
+
+        const bonus = bond.sumAssured * 0.1 * serviceYears;
+        const maturityValue = bond.sumAssured + bonus;
+
+        totalBonus += bonus;
+        totalMaturity += maturityValue;
+
+        const card = document.createElement('div');
+        card.className = 'bond-card';
+        card.innerHTML = `
+          <div class="bond-header">
+            <h3>Bond Suffix: ${bond.suffix}</h3>
+            <span class="premium-badge">${bond.monthlyPremium.toLocaleString('en-IN')} / month</span>
+          </div>
+          <table class="bond-details-table">
+            <tr>
+              <td class="label">Basic Sum Assured</td>
+              <td class="value">₹${bond.sumAssured.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr>
+              <td class="label">Commencement of Risk</td>
+              <td class="value">${bond.commencement}</td>
+            </tr>
+            <tr>
+              <td class="label">Last Premium Due</td>
+              <td class="value">${bond.lastPremiumDue}</td>
+            </tr>
+            <tr>
+              <td class="label">Maturity Date</td>
+              <td class="value">${bond.maturity}</td>
+            </tr>
+            <tr>
+              <td class="label">Calculated Bonus (బోనస్ - 10%/సం.నికి)</td>
+              <td class="value highlight-bonus">₹${Math.round(bonus).toLocaleString('en-IN')}</td>
+            </tr>
+            <tr style="border-top: 1.5px solid var(--card-border);">
+              <td class="label" style="font-weight: 600;">Maturity Value (మెచ్యూరిటీ విలువ)</td>
+              <td class="value highlight-maturity">₹${Math.round(maturityValue).toLocaleString('en-IN')}</td>
+            </tr>
+          </table>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('totalBondsCount').innerText = data.bonds.length;
+      document.getElementById('outSumAssured').innerText = formatCurrency(globalSumAssured);
+      document.getElementById('outBonus').innerText = formatCurrency(totalBonus);
+      document.getElementById('outTotal').innerText = formatCurrency(totalMaturity);
+
+      document.getElementById('results').style.display = 'flex';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
